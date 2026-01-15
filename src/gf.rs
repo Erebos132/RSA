@@ -1,8 +1,16 @@
-use num_bigint::{BigUint, RandBigInt, ToBigInt, ToBigUint};
+// This document is a collection of useful functions which are needed throughout the entire
+// codebase
+
+use num_bigint::{BigInt, BigUint, RandBigInt, ToBigInt, ToBigUint};
 use num_traits::cast::FromPrimitive;
+use num_traits::{One, Zero};
 
 pub fn big(num: u128) -> BigUint {
     return BigUint::from_u128(num).unwrap();
+}
+
+pub fn ibig(num: i128) -> BigInt {
+    return BigInt::from_i128(num).unwrap();
 }
 
 // Function for quickly calculating base^power mod modulus
@@ -27,58 +35,47 @@ pub fn pmod(base: &BigUint, power: &BigUint, modulus: &BigUint) -> BigUint {
     return result;
 }
 
-pub fn gcd(a: &BigUint, b: &BigUint) -> BigUint {
-    let mut a_clone = a.clone();
-    let mut b_clone = b.clone();
-    if a_clone == b_clone {
-        return a_clone;
-    }
-    if b_clone > a_clone {
-        let temp = a_clone.clone();
-        a_clone = b_clone.clone();
-        b_clone = temp;
-    }
-    while &b_clone > &big(0) {
-        let temp = a_clone.clone();
-        a_clone = b_clone.clone();
-        b_clone = temp % b_clone;
-    }
-    return a_clone;
-}
+// Calculate a*? = 1 mod m
+// Written by Chatgpt
+pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> Option<BigUint> {
+    let mut a = a_u.to_bigint().unwrap();
+    let mut m = m_u.to_bigint().unwrap();
 
-pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> BigUint {
-    let a = a_u.to_bigint().unwrap();
-    let m = m_u.to_bigint().unwrap();
-    let (mut t, mut new_t) = (0.to_bigint().unwrap(), 1.to_bigint().unwrap());
-    let (mut r, mut new_r) = (m.clone(), a % &m);
+    let zero = BigInt::zero();
+    let one = BigInt::one();
 
-    while &new_r != &0.to_bigint().unwrap() {
-        let quotient = (&r).clone() / &new_r;
+    let mut t = BigInt::zero();
+    let mut new_t = BigInt::one();
 
-        let temp_t = t;
-        t = new_t.clone();
-        new_t = temp_t - &quotient * &new_t;
+    let mut r = m.clone();
+    let mut new_r = &a % &m;
 
-        let temp_r = r;
-        r = new_r.clone();
-        new_r = temp_r - quotient * new_r;
+    while new_r != zero {
+        let quotient = &r / &new_r;
+
+        // (t, new_t) = (new_t, t - quotient * new_t)
+        let temp_t = new_t.clone();
+        new_t = &t - &quotient * &new_t;
+        t = temp_t;
+
+        // (r, new_r) = (new_r, r - quotient * new_r)
+        let temp_r = new_r.clone();
+        new_r = &r - &quotient * &temp_r;
+        r = temp_r;
     }
 
-    if r > 1.to_bigint().unwrap() {
-        // a and m are not coprime, inverse doesn't exist
-        return big(0);
+    // gcd(a, m) != 1 → inverse does not exist
+    if r != one {
+        return None;
     }
 
-    if t < 0.to_bigint().unwrap() {
+    if t < zero {
         t += m;
     }
 
-    t.to_biguint().unwrap()
+    t.to_biguint()
 }
 
-pub fn mod_inverse(n: &BigUint, p: &BigUint) -> BigUint {
-    if p <= &big(1) || gcd(n, p) > big(1) {
-        return big(0);
-    }
-    return pmod(&n, &(p - &big(2)), &p);
+pub fn hash<T>(data: T) -> BigUint {
+    return big(50);
 }

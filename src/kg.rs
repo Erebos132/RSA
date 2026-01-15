@@ -1,4 +1,10 @@
+// This File includes the logic for generating keys and with them encrypt / decrypt / sign / verify
+// a simple number
+
+#![allow(non_snake_case)]
 use num_bigint::BigUint;
+
+use std::thread;
 
 use crate::gf;
 use crate::gf::big;
@@ -12,15 +18,35 @@ pub struct Keypair {
 
 impl Keypair {
     pub fn new(bitlength: u64) -> Keypair {
-        let mut rng = rand::thread_rng();
-        let p = rngp::get_prime_in_bitrange(&mut rng, bitlength, 64);
-        let q = rngp::get_prime_in_bitrange(&mut rng, bitlength, 64);
+        // Multithreading, not that much more efficient, implement when too much time left
+        // let p_handle = thread::spawn(move || {
+        //     let mut rng = rand::rngs::OsRng;
+        //     rngp::get_prime_in_bitrange(&mut rng, bitlength, 64)
+        // });
+        //
+        // let q_handle = thread::spawn(move || {
+        //     let mut rng = rand::rngs::OsRng;
+        //     rngp::get_prime_in_bitrange(&mut rng, bitlength, 64)
+        // });
+        //
+        // let p = p_handle.join().unwrap();
+        // let q = q_handle.join().unwrap();
+
+        let mut rng = rand::rngs::OsRng;
+
+        let (p, q) = (
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
+        );
 
         let n = &p * &q;
         let phi_n = (&p - &big(1)) * (&q - &big(1));
 
-        let e = rngp::get_prime_in_bitrange(&mut rng, bitlength, 64);
-        let d = gf::mod_inv(&e, &phi_n);
+        let e = rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 + 16, 64);
+        let d = match gf::mod_inv(&e, &phi_n) {
+            Some(v) => v,
+            None => panic!["The Key Pair is not inversible!"],
+        };
 
         Keypair {
             public: (n, e),
@@ -34,5 +60,31 @@ impl Keypair {
 
     pub fn decrypt_num(&self, encrypted_num: &BigUint) -> BigUint {
         return gf::pmod(encrypted_num, &self.private, &self.public.0);
+    }
+
+    pub fn sign(&self, messg_num: &BigUint) -> BigUint {
+        return gf::pmod(&gf::hash(messg_num), &self.private, &self.public.0);
+    }
+
+    pub fn verify(
+        &self,
+        original_messg_num: &BigUint,
+        signature: &BigUint,
+        public_key_sender: &(BigUint, BigUint),
+    ) -> bool {
+        return gf::hash(original_messg_num)
+            == gf::pmod(signature, &public_key_sender.1, &public_key_sender.0);
+    }
+
+    pub fn get_public(&self) -> &(BigUint, BigUint) {
+        return &self.public;
+    }
+
+    pub fn encrypt_num_for(
+        &self,
+        messg_num: &BigUint,
+        public_keys_recv: &(BigUint, BigUint),
+    ) -> BigUint {
+        return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
     }
 }
