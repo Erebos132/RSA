@@ -88,3 +88,7 @@ impl Keypair {
         return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
     }
 }
+
+pub fn encrypt_num_for(messg_num: &BigUint, public_keys_recv: &(BigUint, BigUint)) -> BigUint {
+    return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
+}

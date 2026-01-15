@@ -10,11 +10,16 @@ pub mod rngp;
 
 fn main() {
     let alice = kg::Keypair::new(128);
-    let bob = kg::Keypair::new(128);
+    let bob = kg::Keypair::new(512);
     let message = gf::big(123);
 
     let encrypt = bob.encrypt_num_for(&message, alice.get_public());
     println!("{encrypt}");
 
     println!("{}", alice.decrypt_num(&encrypt));
+
+    let message =
+        mp::Msg::new("Mein name ist Bendix und hier kann ich jetzt alles schreiben, was ich will!");
+    let message_blocks = message.encrypt(bob.get_public());
+    println!("{}", mp::Msg::decrypt(message_blocks, &bob));
 }
