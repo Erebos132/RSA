@@ -12,5 +12,9 @@ fn main() {
     // println!("{}", rngp::get_prime_in_bitrange(&mut rng, 256, 64));
     // println!("{}", rngp::get_prime_in_bitrange(&mut rng, 256, 64));
 
-    println!("{:?}", kg::Keypair::new(256));
+    let keypair = kg::Keypair::new(128);
+    let message = gf::big(500012);
+    let encrypt_messg = keypair.encrypt_num(&message);
+    let decrypt_messg = keypair.decrypt_num(&encrypt_messg);
+    println!("{} = {}", message, decrypt_messg);
 }

@@ -1,4 +1,4 @@
-use num_bigint::{BigUint, RandBigInt, ToBigUint};
+use num_bigint::{BigUint, RandBigInt, ToBigInt, ToBigUint};
 use num_traits::cast::FromPrimitive;
 
 pub fn big(num: u128) -> BigUint {
@@ -44,6 +44,36 @@ pub fn gcd(a: &BigUint, b: &BigUint) -> BigUint {
         b_clone = temp % b_clone;
     }
     return a_clone;
+}
+
+pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> BigUint {
+    let a = a_u.to_bigint().unwrap();
+    let m = m_u.to_bigint().unwrap();
+    let (mut t, mut new_t) = (0.to_bigint().unwrap(), 1.to_bigint().unwrap());
+    let (mut r, mut new_r) = (m.clone(), a % &m);
+
+    while &new_r != &0.to_bigint().unwrap() {
+        let quotient = (&r).clone() / &new_r;
+
+        let temp_t = t;
+        t = new_t.clone();
+        new_t = temp_t - &quotient * &new_t;
+
+        let temp_r = r;
+        r = new_r.clone();
+        new_r = temp_r - quotient * new_r;
+    }
+
+    if r > 1.to_bigint().unwrap() {
+        // a and m are not coprime, inverse doesn't exist
+        return big(0);
+    }
+
+    if t < 0.to_bigint().unwrap() {
+        t += m;
+    }
+
+    t.to_biguint().unwrap()
 }
 
 pub fn mod_inverse(n: &BigUint, p: &BigUint) -> BigUint {

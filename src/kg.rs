@@ -6,9 +6,8 @@ use crate::rngp;
 
 #[derive(Debug)]
 pub struct Keypair {
-    n: BigUint,
-    e: BigUint,
-    d: BigUint,
+    public: (BigUint, BigUint),
+    private: BigUint,
 }
 
 impl Keypair {
@@ -18,11 +17,22 @@ impl Keypair {
         let q = rngp::get_prime_in_bitrange(&mut rng, bitlength, 64);
 
         let n = &p * &q;
-        let phi_n = (p - big(1)) * (q - big(1));
+        let phi_n = (&p - &big(1)) * (&q - &big(1));
 
         let e = rngp::get_prime_in_bitrange(&mut rng, bitlength, 64);
-        let d = gf::mod_inverse(&e, &phi_n);
+        let d = gf::mod_inv(&e, &phi_n);
 
-        Keypair { n, e, d }
+        Keypair {
+            public: (n, e),
+            private: d,
+        }
+    }
+
+    pub fn encrypt_num(&self, messg_num: &BigUint) -> BigUint {
+        return gf::pmod(messg_num, &self.public.1, &self.public.0);
+    }
+
+    pub fn decrypt_num(&self, encrypted_num: &BigUint) -> BigUint {
+        return gf::pmod(encrypted_num, &self.private, &self.public.0);
     }
 }
