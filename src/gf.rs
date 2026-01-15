@@ -1,7 +1,8 @@
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
+use num_traits::cast::FromPrimitive;
 
 pub fn big(num: u128) -> BigUint {
-    return num.to_biguint().unwrap();
+    return BigUint::from_u128(num).unwrap();
 }
 
 // Function for quickly calculating base^power mod modulus
@@ -24,4 +25,30 @@ pub fn pmod(base: &BigUint, power: &BigUint, modulus: &BigUint) -> BigUint {
         }
     }
     return result;
+}
+
+pub fn gcd(a: &BigUint, b: &BigUint) -> BigUint {
+    let mut a_clone = a.clone();
+    let mut b_clone = b.clone();
+    if a_clone == b_clone {
+        return a_clone;
+    }
+    if b_clone > a_clone {
+        let temp = a_clone.clone();
+        a_clone = b_clone.clone();
+        b_clone = temp;
+    }
+    while &b_clone > &big(0) {
+        let temp = a_clone.clone();
+        a_clone = b_clone.clone();
+        b_clone = temp % b_clone;
+    }
+    return a_clone;
+}
+
+pub fn mod_inverse(n: &BigUint, p: &BigUint) -> BigUint {
+    if p <= &big(1) || gcd(n, p) > big(1) {
+        return big(0);
+    }
+    return pmod(&n, &(p - &big(2)), &p);
 }
