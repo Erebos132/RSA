@@ -26,8 +26,7 @@ fn miller_test(d: &BigUint, n: &BigUint, a: &BigUint) -> bool {
     return false;
 }
 
-pub fn check_prime(n: &BigUint, k: usize) -> bool {
-    let mut rng = rand::rng();
+pub fn check_prime<R: RngCore>(rng: &mut R, n: &BigUint, k: usize) -> bool {
     let mut d = n - &big(1);
     while &d % &big(2) == big(0) {
         d /= big(2);
@@ -37,10 +36,21 @@ pub fn check_prime(n: &BigUint, k: usize) -> bool {
         if !miller_test(
             &d,
             n,
-            &(big(2) + &rng.gen_bigint_range(&big(2), &(n - big(2)))),
+            &(big(2) + &rng.gen_biguint_range(&big(2), &(n - big(2)))),
         ) {
             return false;
         }
     }
     return true;
+}
+
+pub fn get_prime_in_bitrange<R: RngCore>(rng: &mut R, bit_size: u64, rounds: usize) -> BigUint {
+    let mut second_rng = rand::thread_rng();
+    let mut random_number = rng.gen_biguint(bit_size);
+    while !check_prime(&mut second_rng, &random_number, rounds)
+        || &random_number < &big(2).pow(bit_size as u32 - 1)
+    {
+        random_number = rng.gen_biguint(bit_size);
+    }
+    return random_number;
 }

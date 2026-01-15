@@ -1,13 +1,13 @@
 #![allow(unused)]
 
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
-use rand::rng;
+use rand::thread_rng;
 
 pub mod gf;
 pub mod rngp;
 
 fn main() {
-    let mut rng = rng();
-    let number = 6.to_biguint().unwrap();
-    println!("{}", rngp::check_prime(&number, 10));
+    let mut rng = thread_rng();
+    let number = gf::big(6890677128309814912091);
+    println!("{}", rngp::get_prime_in_bitrange(&mut rng, 100, 10));
 }

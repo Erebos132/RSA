@@ -1,6 +1,6 @@
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
 
-pub fn big(num: u32) -> BigUint {
+pub fn big(num: u128) -> BigUint {
     return num.to_biguint().unwrap();
 }
 
