@@ -2,6 +2,8 @@
 
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
 use rand::rngs::OsRng;
+use std::thread;
+use std::time;
 
 pub mod attacks;
 pub mod gf;
@@ -10,6 +12,19 @@ pub mod mp;
 pub mod rngp;
 
 fn main() {
-    // let bob = kg::Keypair::new(256);
-    println!("{:?}", attacks::factor::factor(gf::big(5122102)));
+    let now = time::Instant::now();
+    let ratio = 8;
+    let average = 1000;
+
+    for _ in 0..average / ratio {
+        let mut threads = vec![];
+        for _ in 0..ratio {
+            threads.push(thread::spawn(|| kg::Keypair::new(16)));
+        }
+
+        for thread in threads {
+            thread.join().unwrap().display();
+        }
+    }
+    println!("{:?}", now.elapsed() / average);
 }

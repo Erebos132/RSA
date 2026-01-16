@@ -27,8 +27,16 @@ fn miller_test(d: &BigUint, n: &BigUint, a: &BigUint) -> bool {
 }
 
 pub fn check_prime<R: RngCore>(rng: &mut R, n: &BigUint, k: usize) -> bool {
+    // Corner Cases
+    if n <= &big(1) || n == &big(4) {
+        return false;
+    }
+    if n <= &big(3) {
+        return true;
+    }
+
     // Check small primes
-    for small_prime in [2, 3, 5, 7, 11, 13, 17] {
+    for small_prime in [2, 3, 5, 7, 11, 13, 17, 31] {
         if n % big(small_prime) == big(0) {
             return false;
         }

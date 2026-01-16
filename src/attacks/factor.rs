@@ -1,14 +1,16 @@
 use crate::gf::big;
 use num_bigint::BigUint;
 
-pub fn factor(num: BigUint) -> Vec<BigUint> {
-    let mut test = big(2);
-    let mut factors = vec![];
-    while &test < &(&num / &big(2) + &big(1)) {
-        if &num % &test == big(0) {
-            factors.push(test.clone());
+pub fn factor(num: &BigUint) -> Vec<BigUint> {
+    let ballpark = num.sqrt() * big(2);
+    let mut testing_pointer = &ballpark / big(2);
+
+    while (testing_pointer < ballpark) {
+        if (num % &testing_pointer == big(0)) {
+            return vec![num / &testing_pointer, testing_pointer];
         }
-        test += big(1);
+        testing_pointer += big(1);
     }
-    return factors;
+
+    return vec![];
 }

@@ -40,10 +40,16 @@ impl Keypair {
             rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
         );
 
+        if p == q {
+            eprintln!("pq is equal, recalculating p,q");
+            return Keypair::new(bitlength);
+        }
+
         let n = &p * &q;
         let phi_n = (&p - &big(1)) * (&q - &big(1));
 
-        let e = rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 + 16, 64);
+        let e =
+            rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 * 2 + 5, 64);
         let d = match gf::mod_inv(&e, &phi_n) {
             Some(v) => v,
             None => panic!["The Key Pair is not inversible!"],
@@ -95,5 +101,12 @@ impl Keypair {
 
     pub fn decrypt_msg(&self, encrypted_msg: mp::EncryptedMsg) -> String {
         encrypted_msg.decrypt(&self)
+    }
+
+    pub fn display(&self) -> String {
+        format![
+            "public keys: n={}; e={}\nprivate key: d={}",
+            self.public.0, self.public.1, self.private
+        ]
     }
 }
