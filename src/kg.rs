@@ -52,7 +52,10 @@ impl Keypair {
             rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 * 2 + 5, 64);
         let d = match gf::mod_inv(&e, &phi_n) {
             Some(v) => v,
-            None => panic!["The Key Pair is not inversible!"],
+            None => {
+                eprintln!("d cannot be calculated, since e, phi(n) are NOT reverseable.");
+                return Keypair::new(bitlength);
+            }
         };
 
         Keypair {
