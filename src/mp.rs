@@ -4,6 +4,27 @@ use crate::gf;
 use crate::kg;
 use num_bigint::BigUint;
 
+pub struct EncryptedMsg {
+    blocks: Vec<BigUint>,
+}
+
+impl EncryptedMsg {
+    pub fn new(blocks: Vec<BigUint>) -> EncryptedMsg {
+        EncryptedMsg { blocks }
+    }
+
+    pub fn decrypt(&self, key_identity: &kg::Keypair) -> String {
+        let mut output_string = String::new();
+
+        for encrypted_char in &self.blocks {
+            output_string
+                .push(key_identity.decrypt_num(&encrypted_char).to_u32_digits()[0] as u8 as char);
+        }
+
+        return output_string;
+    }
+}
+
 pub struct Msg {
     content: String,
 }
@@ -38,24 +59,15 @@ impl Msg {
         return output_vect;
     }
 
-    pub fn encrypt(&self, public_keys: &(BigUint, BigUint)) -> Vec<BigUint> {
+    pub fn encrypt(&self, public_keys: &(BigUint, BigUint)) -> EncryptedMsg {
         let mut output_vect = vec![];
 
         for char in self.content.chars() {
-            output_vect.push(kg::encrypt_num_for(&gf::big(char as u128), public_keys))
+            output_vect.push(kg::Keypair::encrypt_num_for(
+                &gf::big(char as u128),
+                public_keys,
+            ))
         }
-        return output_vect;
-    }
-
-    pub fn decrypt(encrypted_message: Vec<BigUint>, key_identity: &kg::Keypair) -> String {
-        let mut output_string = String::new();
-
-        for encrypted_char in encrypted_message {
-            output_string
-                .push(key_identity.decrypt_num(&encrypted_char).to_u32_digits()[0] as u8 as char);
-            println!("{output_string}");
-        }
-
-        return output_string;
+        return EncryptedMsg::new(output_vect);
     }
 }

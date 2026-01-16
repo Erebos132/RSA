@@ -6,9 +6,10 @@ use num_bigint::BigUint;
 
 use std::thread;
 
-use crate::gf;
 use crate::gf::big;
+use crate::mp::EncryptedMsg;
 use crate::rngp;
+use crate::{gf, mp};
 
 #[derive(Debug)]
 pub struct Keypair {
@@ -80,15 +81,19 @@ impl Keypair {
         return &self.public;
     }
 
-    pub fn encrypt_num_for(
-        &self,
-        messg_num: &BigUint,
-        public_keys_recv: &(BigUint, BigUint),
-    ) -> BigUint {
+    pub fn encrypt_num_for(messg_num: &BigUint, public_keys_recv: &(BigUint, BigUint)) -> BigUint {
         return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
     }
-}
 
-pub fn encrypt_num_for(messg_num: &BigUint, public_keys_recv: &(BigUint, BigUint)) -> BigUint {
-    return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
+    pub fn encrypt_msg_for(
+        &self,
+        msg: mp::Msg,
+        public_keys_recv: &(BigUint, BigUint),
+    ) -> EncryptedMsg {
+        msg.encrypt(public_keys_recv)
+    }
+
+    pub fn decrypt_msg(&self, encrypted_msg: mp::EncryptedMsg) -> String {
+        encrypted_msg.decrypt(&self)
+    }
 }
