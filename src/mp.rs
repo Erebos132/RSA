@@ -2,6 +2,7 @@
 
 use crate::gf;
 use crate::kg;
+use crate::padding;
 use num_bigint::BigUint;
 
 pub struct EncryptedMsg {
@@ -29,6 +30,23 @@ impl EncryptedMsg {
 
         for block in &self.blocks {
             output_string += &(gf::int_to_str(&key_identity.decrypt_num(&block)));
+        }
+
+        return output_string;
+    }
+
+    pub fn decrypt_blocks_padding(
+        &self,
+        key_identity: &kg::Keypair,
+        padding_size: usize,
+    ) -> String {
+        let mut output_string = String::new();
+
+        for block in &self.blocks {
+            output_string += &(padding::remove_padding(
+                &gf::int_to_str(&key_identity.decrypt_num(&block)),
+                padding_size,
+            ));
         }
 
         return output_string;
@@ -95,6 +113,23 @@ impl Msg {
         for block in self.slice(blocksize) {
             output_vect.push(kg::Keypair::encrypt_num_for(
                 &gf::str_to_int(&block),
+                public_keys,
+            ))
+        }
+        return EncryptedMsg::new(output_vect);
+    }
+
+    pub fn encrypt_blocks_padding(
+        &self,
+        blocksize: usize,
+        padding_size: usize,
+        public_keys: &(BigUint, BigUint),
+    ) -> EncryptedMsg {
+        let mut output_vect = vec![];
+
+        for block in self.slice(blocksize) {
+            output_vect.push(kg::Keypair::encrypt_num_for(
+                &gf::str_to_int(&padding::add_random_padding(&block, padding_size)),
                 public_keys,
             ))
         }

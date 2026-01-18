@@ -10,6 +10,7 @@ pub mod attacks;
 pub mod gf;
 pub mod kg;
 pub mod mp;
+pub mod padding;
 pub mod rngp;
 pub mod visualize;
 
@@ -25,11 +26,12 @@ fn main() {
     //     3,
     //     &arguments[1],
     // );
-    let bob = kg::Keypair::new(128);
+
+    let bob = kg::Keypair::new(512);
     println!(
         "{:?}",
-        mp::Msg::new("Hello my name is Bendix")
-            .encrypt_blocks(4, bob.get_public())
-            .decrypt_blocks(&bob)
+        mp::Msg::new("Hello World My Name is Bendix!")
+            .encrypt_blocks_padding(5, 10, bob.get_public())
+            .decrypt_blocks_padding(&bob, 10)
     );
 }
