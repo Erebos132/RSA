@@ -11,4 +11,7 @@ TODO-List:
       - Encryption: bitlength vs time
       - Decryption: bitlength vs time
       - Padding-Hack: bitlength vs time
+  - Build Blocking of Messages
+  - Adding Padding
+  - Hashing Function
 

@@ -23,6 +23,20 @@ impl EncryptedMsg {
 
         return output_string;
     }
+
+    pub fn decrypt_blocks(&self, key_identity: &kg::Keypair) -> String {
+        let mut output_string = String::new();
+
+        for block in &self.blocks {
+            output_string += &(gf::int_to_str(&key_identity.decrypt_num(&block)));
+        }
+
+        return output_string;
+    }
+
+    pub fn display(&self) -> &Vec<BigUint> {
+        return &self.blocks;
+    }
 }
 
 pub struct Msg {
@@ -65,6 +79,22 @@ impl Msg {
         for char in self.content.chars() {
             output_vect.push(kg::Keypair::encrypt_num_for(
                 &gf::big(char as u128),
+                public_keys,
+            ))
+        }
+        return EncryptedMsg::new(output_vect);
+    }
+
+    pub fn encrypt_blocks(
+        &self,
+        blocksize: usize,
+        public_keys: &(BigUint, BigUint),
+    ) -> EncryptedMsg {
+        let mut output_vect = vec![];
+
+        for block in self.slice(blocksize) {
+            output_vect.push(kg::Keypair::encrypt_num_for(
+                &gf::str_to_int(&block),
                 public_keys,
             ))
         }

@@ -77,5 +77,16 @@ pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> Option<BigUint> {
 }
 
 pub fn hash<T>(data: T) -> BigUint {
+    // TODO: Hashing function
     return big(50);
+}
+
+pub fn str_to_int(msg: &str) -> BigUint {
+    let bytes = msg.as_bytes();
+    return BigUint::from_bytes_be(bytes);
+}
+
+pub fn int_to_str(msg_int: &BigUint) -> String {
+    let bytes = msg_int.to_bytes_be();
+    String::from_utf8(bytes).unwrap()
 }
