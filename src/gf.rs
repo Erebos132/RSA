@@ -4,6 +4,7 @@
 use num_bigint::{BigInt, BigUint, RandBigInt, ToBigInt, ToBigUint};
 use num_traits::cast::FromPrimitive;
 use num_traits::{One, Zero};
+use sha2::{Digest, Sha256};
 
 pub fn big(num: u128) -> BigUint {
     return BigUint::from_u128(num).unwrap();
@@ -76,9 +77,10 @@ pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> Option<BigUint> {
     t.to_biguint()
 }
 
-pub fn hash<T>(data: T) -> BigUint {
-    // TODO: Hashing function
-    return big(50);
+pub fn hash_bytes(bytes: &[u8]) -> BigUint {
+    let mut hasher = Sha256::new();
+    hasher.update(bytes);
+    BigUint::from_bytes_be(&hasher.finalize())
 }
 
 pub fn str_to_int(msg: &str) -> BigUint {

@@ -26,12 +26,4 @@ fn main() {
     //     3,
     //     &arguments[1],
     // );
-
-    let bob = kg::Keypair::new(512);
-    println!(
-        "{:?}",
-        mp::Msg::new("Hello World My Name is Bendix!")
-            .encrypt_blocks_padding(5, 10, bob.get_public())
-            .decrypt_blocks_padding(&bob, 10)
-    );
 }

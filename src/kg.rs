@@ -72,17 +72,20 @@ impl Keypair {
         return gf::pmod(encrypted_num, &self.private, &self.public.0);
     }
 
-    pub fn sign(&self, messg_num: &BigUint) -> BigUint {
-        return gf::pmod(&gf::hash(messg_num), &self.private, &self.public.0);
+    pub fn sign_num(&self, messg_num: &BigUint) -> BigUint {
+        return gf::pmod(
+            &gf::hash_bytes(&messg_num.to_bytes_be()),
+            &self.private,
+            &self.public.0,
+        );
     }
 
     pub fn verify(
-        &self,
         original_messg_num: &BigUint,
         signature: &BigUint,
         public_key_sender: &(BigUint, BigUint),
     ) -> bool {
-        return gf::hash(original_messg_num)
+        return gf::hash_bytes(&original_messg_num.to_bytes_be())
             == gf::pmod(signature, &public_key_sender.1, &public_key_sender.0);
     }
 
