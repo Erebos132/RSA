@@ -22,3 +22,4 @@ TODO-List:
     - chosen cyphertext attack -> User error
     - Try to recover secrets by knowing encryption and cleartext-message
     - maybe coppersmith attack? -> Seems complex...
+  - Add proper OAEP

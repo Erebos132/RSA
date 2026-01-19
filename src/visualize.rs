@@ -3,6 +3,8 @@ use std::any::Any;
 pub mod export;
 pub mod timer;
 
+// The library and basic functionality of creating graphs (csv files)
+
 pub fn create_graph<F>(
     mut func: F,
     samples: usize,

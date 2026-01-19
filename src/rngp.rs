@@ -1,9 +1,12 @@
+// File for the random prime number generation
+
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
 use rand::{Rng, RngCore};
 
 use crate::gf;
 use crate::gf::big;
 
+// function needed for determining if a number is prime, probably inefficient, adapted from python
 fn miller_test(d: &BigUint, n: &BigUint, a: &BigUint) -> bool {
     let mut d_clone = d.clone();
     let mut x = gf::pmod(a, d, n);
@@ -26,6 +29,8 @@ fn miller_test(d: &BigUint, n: &BigUint, a: &BigUint) -> bool {
     return false;
 }
 
+// Function to check if a number is prime by doing tests on the number. More rounds = higher
+// accuracy
 pub fn check_prime<R: RngCore>(rng: &mut R, n: &BigUint, k: usize) -> bool {
     // Corner Cases
     if n <= &big(1) || n == &big(4) {
@@ -59,6 +64,8 @@ pub fn check_prime<R: RngCore>(rng: &mut R, n: &BigUint, k: usize) -> bool {
     return true;
 }
 
+// Generates many random numbers with bitlength and then checks if they are prime or not. If they
+// are, the number is returned
 pub fn get_prime_in_bitrange<R: RngCore>(rng: &mut R, bit_size: u64, rounds: usize) -> BigUint {
     let mut second_rng = rand::thread_rng();
     let mut random_number = rng.gen_biguint(bit_size);

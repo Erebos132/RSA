@@ -11,27 +11,18 @@ use crate::mp::EncryptedMsg;
 use crate::rngp;
 use crate::{gf, mp};
 
+// Keypair is the data storage unit for handeling keys (public + private)
 #[derive(Debug)]
 pub struct Keypair {
     public: (BigUint, BigUint),
     private: BigUint,
 }
 
+// Functions of keypairs
 impl Keypair {
+    // Create a new Keypair with bitlength n -> returns a Keypair with a matching private and
+    // public keys
     pub fn new(bitlength: u64) -> Keypair {
-        // Multithreading, not that much more efficient, implement when too much time left
-        // let p_handle = thread::spawn(move || {
-        //     let mut rng = rand::rngs::OsRng;
-        //     rngp::get_prime_in_bitrange(&mut rng, bitlength, 64)
-        // });
-        //
-        // let q_handle = thread::spawn(move || {
-        //     let mut rng = rand::rngs::OsRng;
-        //     rngp::get_prime_in_bitrange(&mut rng, bitlength, 64)
-        // });
-        //
-        // let p = p_handle.join().unwrap();
-        // let q = q_handle.join().unwrap();
         let mut rng = rand::rngs::OsRng;
 
         let (p, q) = Keypair::gen_pq(bitlength);
@@ -55,6 +46,7 @@ impl Keypair {
         }
     }
 
+    // Create a custom Keypair from given Values
     pub fn from(n: BigUint, e: BigUint, d: BigUint) -> Keypair {
         Keypair {
             public: (n, e),
@@ -62,6 +54,7 @@ impl Keypair {
         }
     }
 
+    // Function used to generate two (not equal) random big primes p, q in a given bitrange
     pub fn gen_pq(bitlength: u64) -> (BigUint, BigUint) {
         let mut rng = rand::rngs::OsRng;
 
@@ -77,6 +70,7 @@ impl Keypair {
         return (p, q);
     }
 
+    // Functions for de- and encryption (just for Integers)
     pub fn encrypt_num(&self, messg_num: &BigUint) -> BigUint {
         return gf::pmod(messg_num, &self.public.1, &self.public.0);
     }
@@ -85,6 +79,7 @@ impl Keypair {
         return gf::pmod(encrypted_num, &self.private, &self.public.0);
     }
 
+    // Signing a number to create a signature number
     pub fn sign_num(&self, messg_num: &BigUint) -> BigUint {
         return gf::pmod(
             &gf::hash_bytes(&messg_num.to_bytes_be()),
@@ -93,7 +88,8 @@ impl Keypair {
         );
     }
 
-    pub fn verify(
+    // Verify Signature Number
+    pub fn verify_num(
         original_messg_num: &BigUint,
         signature: &BigUint,
         public_key_sender: &(BigUint, BigUint),
@@ -102,14 +98,19 @@ impl Keypair {
             == gf::pmod(signature, &public_key_sender.1, &public_key_sender.0);
     }
 
+    // Function to access public keys from outside -> To encrypt a message for someone you don't
+    // know the private key from
     pub fn get_public(&self) -> &(BigUint, BigUint) {
         return &self.public;
     }
 
+    // Encrypt not for yourself, but rather for a specific public key pair
     pub fn encrypt_num_for(messg_num: &BigUint, public_keys_recv: &(BigUint, BigUint)) -> BigUint {
         return gf::pmod(messg_num, &public_keys_recv.1, &public_keys_recv.0);
     }
 
+    // Encrypt a parsed message and return an encrypted message (different format for handling the
+    // Blocks of encrypted nums and then to decrypt again)
     pub fn encrypt_msg_for(
         &self,
         msg: mp::Msg,
@@ -118,10 +119,12 @@ impl Keypair {
         msg.encrypt(public_keys_recv)
     }
 
+    // Function to retrieve a message encrypted for the matching public keys of oneselves' identity
     pub fn decrypt_msg(&self, encrypted_msg: mp::EncryptedMsg) -> String {
         encrypted_msg.decrypt(&self)
     }
 
+    // Function to show the current key pair, useful for debugging mainly
     pub fn display(&self) -> String {
         format![
             "public keys: n={}; e={}\nprivate key: d={}",

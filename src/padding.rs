@@ -1,8 +1,16 @@
-const CHARS: [char; 16] = [
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+// Collection of different padding algorithms, currently only random padding
+
+// List of possible characters for padding (Base 64)
+const CHARS: [char; 64] = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
+    'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+    'V', 'W', 'X', 'Y', 'Z', '+', '/',
 ];
 
 use rand::{self, Rng, seq::IteratorRandom};
+
+// Generating a specific amount of random characters chosen from the possible characters
 pub fn random_padding(num: usize) -> String {
     let mut output = String::new();
     let mut rng = rand::rngs::OsRng;
@@ -13,6 +21,8 @@ pub fn random_padding(num: usize) -> String {
     return output;
 }
 
+// Return a new message containing the original message surrounded by the padding with length
+// "length"
 pub fn add_random_padding(message: &str, length: usize) -> String {
     return format!(
         "{}{}{}",
@@ -22,6 +32,7 @@ pub fn add_random_padding(message: &str, length: usize) -> String {
     );
 }
 
+// Remove the "length" amount of outer characters
 pub fn remove_padding(message: &str, length: usize) -> String {
     String::from(&message[length..message.len() - length])
 }

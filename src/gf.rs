@@ -6,10 +6,12 @@ use num_traits::cast::FromPrimitive;
 use num_traits::{One, Zero};
 use sha2::{Digest, Sha256};
 
+// Convert number (Rust) to a BigUInt
 pub fn big(num: u128) -> BigUint {
     return BigUint::from_u128(num).unwrap();
 }
 
+// Convert number (Rust) to a BigInt (can be negative)
 pub fn ibig(num: i128) -> BigInt {
     return BigInt::from_i128(num).unwrap();
 }
@@ -24,11 +26,13 @@ pub fn pmod(base: &BigUint, power: &BigUint, modulus: &BigUint) -> BigUint {
     while &power_clone >= &big(1) {
         // Odd
         if &power_clone % big(2) == big(1) {
+            // Normal Expoentiation -> Just Multiply with base and reduce Power by 1
             result = (result * &base_clone) % modulus;
             power_clone -= big(1);
         }
         // Even
         else {
+            // Square Base, Halve Exponent
             base_clone = (&base_clone * &base_clone) % modulus;
             power_clone /= big(2);
         }
@@ -77,17 +81,23 @@ pub fn mod_inv(a_u: &BigUint, m_u: &BigUint) -> Option<BigUint> {
     t.to_biguint()
 }
 
+// Use of Crate functionality: Return a hash (BigUint) of a bytes-array -> Basically everything if
+// converted to bytes
 pub fn hash_bytes(bytes: &[u8]) -> BigUint {
     let mut hasher = Sha256::new();
     hasher.update(bytes);
     BigUint::from_bytes_be(&hasher.finalize())
 }
 
+// Parser to parse a string of any length into a BigUint --> Works by taking byte-list of string
+// and converting it to an integer -> UTF-8
 pub fn str_to_int(msg: &str) -> BigUint {
     let bytes = msg.as_bytes();
     return BigUint::from_bytes_be(bytes);
 }
 
+// Reverse Parser to create a string from a BigUint (probably parsed before) --> Takes bytes and
+// reinterprets them as String -> UTF-8
 pub fn int_to_str(msg_int: &BigUint) -> String {
     let bytes = msg_int.to_bytes_be();
     String::from_utf8(bytes).unwrap()

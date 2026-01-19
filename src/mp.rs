@@ -9,11 +9,13 @@ pub struct EncryptedMsg {
     blocks: Vec<BigUint>,
 }
 
+// Format for storing encrypted nums as blocks
 impl EncryptedMsg {
     pub fn new(blocks: Vec<BigUint>) -> EncryptedMsg {
         EncryptedMsg { blocks }
     }
 
+    // Retrieve (potentially part of) original message by decrypting the first block stored
     pub fn decrypt(&self, key_identity: &kg::Keypair) -> String {
         let mut output_string = String::new();
 
@@ -25,6 +27,7 @@ impl EncryptedMsg {
         return output_string;
     }
 
+    // Decrypt all blocks and put them together to form the original message
     pub fn decrypt_blocks(&self, key_identity: &kg::Keypair) -> String {
         let mut output_string = String::new();
 
@@ -35,6 +38,7 @@ impl EncryptedMsg {
         return output_string;
     }
 
+    // Decrypt all blocks stored and but them together after padding around the message was removed
     pub fn decrypt_blocks_padding(
         &self,
         key_identity: &kg::Keypair,
@@ -52,11 +56,13 @@ impl EncryptedMsg {
         return output_string;
     }
 
+    // Get the inner blocks which are encrypted
     pub fn display(&self) -> &Vec<BigUint> {
         return &self.blocks;
     }
 }
 
+// Normal Struct for creating messages
 pub struct Msg {
     content: String,
 }
@@ -68,6 +74,9 @@ impl Msg {
         }
     }
 
+    // Turn the Message content into blocks of a fixed size and return the list of blocks, each
+    // block being a substring of the original message; if the block is not filled completely by
+    // the message, it is filled with spaces (placeholders)
     pub fn slice(&self, blocksize: usize) -> Vec<String> {
         let mut current_block_size = 0;
         let mut output_vect = vec![];
@@ -91,6 +100,7 @@ impl Msg {
         return output_vect;
     }
 
+    // Create an encrypted message by encrypting the message as one big block
     pub fn encrypt(&self, public_keys: &(BigUint, BigUint)) -> EncryptedMsg {
         let mut output_vect = vec![];
 
@@ -103,6 +113,8 @@ impl Msg {
         return EncryptedMsg::new(output_vect);
     }
 
+    // Encrypt the message by blockizing it first, then encrypting every block and putting them in
+    // the data format of an encrypted message.
     pub fn encrypt_blocks(
         &self,
         blocksize: usize,
@@ -119,6 +131,8 @@ impl Msg {
         return EncryptedMsg::new(output_vect);
     }
 
+    // Encrypt message in blocks (see above), but also add a specific amount of padding around each
+    // block (random characters) (Padding could be changed later)
     pub fn encrypt_blocks_padding(
         &self,
         blocksize: usize,
