@@ -92,3 +92,21 @@ pub fn int_to_str(msg_int: &BigUint) -> String {
     let bytes = msg_int.to_bytes_be();
     String::from_utf8(bytes).unwrap()
 }
+
+// Written by Chatgpt, taking the nth root from a bigint
+pub fn nth_root(n: &BigUint, k: u32) -> BigUint {
+    use num_traits::One;
+
+    let mut low = BigUint::zero();
+    let mut high = BigUint::one() << ((n.bits() + k as u64 - 1) / k as u64);
+
+    while low < high {
+        let mid: BigUint = (&low + &high + 1u32) >> 1;
+        if mid.pow(k) <= *n {
+            low = mid;
+        } else {
+            high = mid - 1u32;
+        }
+    }
+    low
+}

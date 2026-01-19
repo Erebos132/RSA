@@ -11,7 +11,14 @@ TODO-List:
       - Encryption: bitlength vs time
       - Decryption: bitlength vs time
       - Padding-Hack: bitlength vs time
-  - Build Blocking of Messages
-  - Adding Padding
-  - Hashing Function
-
+  - #Build Blocking of Messages
+  - #Adding Padding
+  - #Hashing Function
+  - Multi-threaded generation of keys, encryption, and decryption
+  - Improve Performance of Key Generation
+  - Attacks: 
+    - technically low public exponent e (test and document)
+        -> If m^e < n --> There is no modulous being taken, therefore, no encryption
+    - chosen cyphertext attack -> User error
+    - Try to recover secrets by knowing encryption and cleartext-message
+    - maybe coppersmith attack? -> Seems complex...

@@ -32,18 +32,9 @@ impl Keypair {
         //
         // let p = p_handle.join().unwrap();
         // let q = q_handle.join().unwrap();
-
         let mut rng = rand::rngs::OsRng;
 
-        let (p, q) = (
-            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
-            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
-        );
-
-        if p == q {
-            eprintln!("pq is equal, recalculating p,q");
-            return Keypair::new(bitlength);
-        }
+        let (p, q) = Keypair::gen_pq(bitlength);
 
         let n = &p * &q;
         let phi_n = (&p - &big(1)) * (&q - &big(1));
@@ -62,6 +53,28 @@ impl Keypair {
             public: (n, e),
             private: d,
         }
+    }
+
+    pub fn from(n: BigUint, e: BigUint, d: BigUint) -> Keypair {
+        Keypair {
+            public: (n, e),
+            private: d,
+        }
+    }
+
+    pub fn gen_pq(bitlength: u64) -> (BigUint, BigUint) {
+        let mut rng = rand::rngs::OsRng;
+
+        let (p, q) = (
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
+        );
+
+        if p == q {
+            eprintln!("pq is equal, recalculating p,q");
+            return Keypair::gen_pq(bitlength);
+        }
+        return (p, q);
     }
 
     pub fn encrypt_num(&self, messg_num: &BigUint) -> BigUint {

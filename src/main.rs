@@ -26,4 +26,5 @@ fn main() {
     //     3,
     //     &arguments[1],
     // );
+    attacks::low_pub::test();
 }
