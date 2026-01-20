@@ -11,6 +11,10 @@ pub fn big(num: u128) -> BigUint {
     return BigUint::from_u128(num).unwrap();
 }
 
+pub fn unbig(num: &BigUint) -> u64 {
+    return num.to_u64_digits()[0];
+}
+
 // Convert number (Rust) to a BigInt (can be negative)
 pub fn ibig(num: i128) -> BigInt {
     return BigInt::from_i128(num).unwrap();

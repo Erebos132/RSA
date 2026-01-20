@@ -16,14 +16,5 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    println!(
-        "{:?}",
-        visualize::timer::timing_st_dev(
-            || {
-                kg::Keypair::new(16);
-            },
-            500
-        )
-    );
-    // attacks::low_pub::test();
+    attacks::chosen_cyphertext::test();
 }
