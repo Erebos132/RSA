@@ -16,15 +16,14 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    // visualize::create_graph(
-    //     |bitlength| {
-    //         kg::Keypair::new(bitlength as u64);
-    //     },
-    //     12,
-    //     16,
-    //     16,
-    //     3,
-    //     &arguments[1],
-    // );
-    attacks::low_pub::test();
+    println!(
+        "{:?}",
+        visualize::timer::timing_st_dev(
+            || {
+                kg::Keypair::new(16);
+            },
+            500
+        )
+    );
+    // attacks::low_pub::test();
 }
