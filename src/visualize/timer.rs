@@ -23,7 +23,7 @@ where
     (duration.as_millis() / average_over as u128, result)
 }
 
-pub fn timing_st_dev<F>(mut func: F, sample_size: usize) -> (u128, u128)
+pub fn timing_stdev<F>(mut func: F, sample_size: usize) -> (u128, u128)
 where
     F: FnMut(),
 {

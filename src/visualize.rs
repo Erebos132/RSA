@@ -26,3 +26,26 @@ pub fn create_graph<F>(
     }
     export::export_data(export::make_data(outputs), path);
 }
+
+pub fn create_graph_stdev<F>(
+    mut func: F,
+    samples: usize,
+    start: usize,
+    step: usize,
+    average_over: usize,
+    path: &str,
+) where
+    F: FnMut(usize),
+{
+    let mut outputs = vec![];
+    for sample in 0..samples {
+        let mut row = vec![];
+        let num = start + step * sample;
+        let (averaged_duration, stdev) = timer::timing_stdev(|| func(num), average_over);
+        row.push(num as u128);
+        row.push(averaged_duration);
+        row.push(stdev);
+        outputs.push(row);
+    }
+    export::export_data(export::make_data(outputs), path);
+}
