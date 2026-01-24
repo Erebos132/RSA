@@ -6,7 +6,7 @@ use std::env::args;
 use std::thread;
 use std::time;
 
-use crate::visualize::create_graph_stdev;
+use crate::visualize::create_graph_stdev_threaded;
 
 pub mod attacks;
 pub mod gf;
@@ -18,14 +18,14 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    create_graph_stdev(
+    create_graph_stdev_threaded(
         |num| {
             kg::Keypair::new(num as u64);
         },
-        10,
+        128,
         8,
         16,
-        5,
+        64,
         &arguments[1],
     );
 }
