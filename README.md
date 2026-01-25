@@ -6,8 +6,8 @@ Unfortunately, I have apparently failed to do so. At least for now. When perform
 
 TODO-List: 
   - Graphs of: 
-      - key generation: bitlength vs time
-      - factorization: bitlength vs time
+      - #key generation: bitlength vs time
+      - #factorization: bitlength vs time
       - Encryption: bitlength vs time
       - Decryption: bitlength vs time
       - Padding-Hack: bitlength vs time

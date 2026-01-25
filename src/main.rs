@@ -6,8 +6,6 @@ use std::env::args;
 use std::thread;
 use std::time;
 
-use crate::visualize::create_graph_stdev_threaded;
-
 pub mod attacks;
 pub mod gf;
 pub mod kg;
@@ -18,14 +16,14 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    create_graph_stdev_threaded(
-        |num| {
-            kg::Keypair::new(num as u64);
-        },
-        128,
-        8,
-        16,
-        64,
-        &arguments[1],
+    let mut rng = OsRng;
+    println!(
+        "{:?}",
+        visualize::timer::timing_stdev(
+            || {
+                rngp::get_prime_in_bitrange(&mut rng, 128, 40);
+            },
+            1000
+        )
     );
 }

@@ -59,8 +59,8 @@ impl Keypair {
         let mut rng = rand::rngs::OsRng;
 
         let (p, q) = (
-            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
-            rngp::get_prime_in_bitrange(&mut rng, bitlength, 64),
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 40),
+            rngp::get_prime_in_bitrange(&mut rng, bitlength, 40),
         );
 
         if p == q {
