@@ -1,23 +1,22 @@
 // File for the random prime number generation
 
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
+use num_traits::{One, Zero};
 use rand::{Rng, RngCore};
 
 use crate::gf;
 use crate::gf::big;
 
 // function needed for determining if a number is prime, probably inefficient, adapted from python
-fn miller_test(d: &BigUint, n: &BigUint, a: &BigUint) -> bool {
-    let mut d_clone = d.clone();
-    let mut x = gf::pmod(a, d, n);
+fn miller_test(n: &BigUint, d: &BigUint, r: u32, a: &BigUint) -> bool {
+    let mut x = a.modpow(d, n);
 
     if &x == &big(1) || x == n - &big(1) {
         return true;
     }
 
-    while (&d_clone != &(n - &big(1))) {
-        x = x.pow(2) % n;
-        d_clone *= &big(2);
+    for _ in 0..(r - 1) {
+        x = (&x * &x) % n;
 
         if x == big(1) {
             return false;
@@ -41,23 +40,27 @@ pub fn check_prime<R: RngCore>(rng: &mut R, n: &BigUint, k: usize) -> bool {
     }
 
     // Check small primes
-    for small_prime in [2, 3, 5, 7, 11, 13, 17, 31] {
-        if n % big(small_prime) == big(0) {
+    const SMALL_PRIMES: [u32; 8] = [2, 3, 5, 7, 11, 13, 17, 31];
+    for &p in &SMALL_PRIMES {
+        let p = BigUint::from(p);
+        if n == &p {
+            return true;
+        }
+        if n % &p == BigUint::ZERO {
             return false;
         }
     }
 
-    let mut d = n - &big(1);
-    while &d % &big(2) == big(0) {
-        d /= big(2);
+    let mut d = n - BigUint::one();
+    let mut r = 0u32;
+    while (&d & BigUint::one()) == BigUint::ZERO {
+        d >>= 1;
+        r += 1;
     }
 
     for _ in 0..k {
-        if !miller_test(
-            &d,
-            n,
-            &(big(2) + &rng.gen_biguint_range(&big(2), &(n - big(2)))),
-        ) {
+        let testing_number = &rng.gen_biguint_range(&big(2), &(n - big(2)));
+        if !miller_test(n, &d, r, &testing_number) {
             return false;
         }
     }

@@ -31,7 +31,7 @@ impl Keypair {
         let phi_n = (&p - &big(1)) * (&q - &big(1));
 
         let e =
-            rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 * 2 + 5, 64);
+            rngp::get_prime_in_bitrange(&mut rng, (bitlength as f64).log(2.0) as u64 * 2 + 5, 40);
         let d = match gf::mod_inv(&e, &phi_n) {
             Some(v) => v,
             None => {

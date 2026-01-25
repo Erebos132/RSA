@@ -17,13 +17,14 @@ pub mod visualize;
 fn main() {
     let arguments = args().collect::<Vec<String>>();
     let mut rng = OsRng;
+
     println!(
         "{:?}",
         visualize::timer::timing_stdev(
             || {
-                rngp::get_prime_in_bitrange(&mut rng, 128, 40);
+                kg::Keypair::new(512);
             },
-            1000
+            200
         )
     );
 }
