@@ -18,14 +18,28 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    create_graph_stdev_threaded(
-        |num| {
-            kg::Keypair::new(num as u64);
-        },
-        128,
-        8,
-        16,
-        64,
-        &arguments[1],
+    // create_graph_stdev_threaded(
+    //     |num| {
+    //         kg::Keypair::new(num as u64);
+    //     },
+    //     128,
+    //     8,
+    //     16,
+    //     64,
+    //     &arguments[1],
+    // );
+    let bob = kg::Keypair::new(1024);
+    let message = mp::Msg::new("This will be a very long message with like a couple of sentences");
+
+    println!("Found Key");
+
+    println!(
+        "{:?}",
+        visualize::timer::timing_stdev(
+            || {
+                message.encrypt(bob.get_public());
+            },
+            200
+        )
     );
 }

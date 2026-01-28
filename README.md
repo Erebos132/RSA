@@ -6,11 +6,12 @@ Unfortunately, I have apparently failed to do so. At least for now. When perform
 
 TODO-List: 
   - Graphs of: 
-      - key generation: bitlength vs time
-      - factorization: bitlength vs time
+      #- key generation: bitlength vs time
+      #- factorization: bitlength vs time
       - Encryption: bitlength vs time
+        -> Messagesize; Features: Blocking, Padding
       - Decryption: bitlength vs time
-      - Padding-Hack: bitlength vs time
+        -> Same as Encryption
       - What operation takes how much time for key generation (circle diagram)
   - #Build Blocking of Messages
   - #Adding Padding
