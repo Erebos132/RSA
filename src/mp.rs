@@ -56,6 +56,11 @@ impl EncryptedMsg {
         return output_string;
     }
 
+    // TODO: This does not work yet, by no means, not even close...
+    // pub fn verify(&self, public_sender: (BigUint, BigUint), orig_msg: Msg) -> bool {
+    //     kg::Keypair::verify_num(original_messg_num, signature, public_key_sender)
+    // }
+
     // Get the inner blocks which are encrypted
     pub fn display(&self) -> &Vec<BigUint> {
         return &self.blocks;
@@ -146,6 +151,15 @@ impl Msg {
                 &gf::str_to_int(&padding::add_random_padding(&block, padding_size)),
                 public_keys,
             ))
+        }
+        return EncryptedMsg::new(output_vect);
+    }
+
+    pub fn sign(&self, keyring: &kg::Keypair) -> EncryptedMsg {
+        let mut output_vect = vec![];
+
+        for char in self.content.chars() {
+            output_vect.push(keyring.sign_num(&gf::big(char as u128)));
         }
         return EncryptedMsg::new(output_vect);
     }

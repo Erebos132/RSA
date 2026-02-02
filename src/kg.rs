@@ -46,6 +46,24 @@ impl Keypair {
         }
     }
 
+    pub fn from_pqe(p: BigUint, q: BigUint, e: BigUint) -> Option<Keypair> {
+        let n = &p * &q;
+        let phi_n = (&p - &big(1)) * (&q - &big(1));
+
+        let d = match gf::mod_inv(&e, &phi_n) {
+            Some(v) => v,
+            None => {
+                eprintln!("d cannot be calculated, since e, phi(n) are NOT reverseable.");
+                return None;
+            }
+        };
+
+        Some(Keypair {
+            public: (n, e),
+            private: d,
+        })
+    }
+
     // Create a custom Keypair from given Values
     pub fn from(n: BigUint, e: BigUint, d: BigUint) -> Keypair {
         Keypair {
@@ -96,6 +114,10 @@ impl Keypair {
     ) -> bool {
         return gf::hash_bytes(&original_messg_num.to_bytes_be())
             == gf::pmod(signature, &public_key_sender.1, &public_key_sender.0);
+    }
+
+    pub fn sign(&self, msg: mp::Msg) -> mp::EncryptedMsg {
+        msg.sign(&self)
     }
 
     // Function to access public keys from outside -> To encrypt a message for someone you don't

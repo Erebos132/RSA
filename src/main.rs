@@ -18,28 +18,12 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    // create_graph_stdev_threaded(
-    //     |num| {
-    //         kg::Keypair::new(num as u64);
-    //     },
-    //     128,
-    //     8,
-    //     16,
-    //     64,
-    //     &arguments[1],
-    // );
-    let bob = kg::Keypair::new(1024);
-    let message = mp::Msg::new("This will be a very long message with like a couple of sentences");
+    let (p, q) = kg::Keypair::gen_pq(16);
+    let bob = kg::Keypair::from_pqe(p, q, gf::big(3));
 
-    println!("Found Key");
+    let message = mp::Msg::new("Testing, Hello World");
+    let signed_message = message.sign(&bob.unwrap());
+    println!("{:?}", signed_message.display());
 
-    println!(
-        "{:?}",
-        visualize::timer::timing_stdev(
-            || {
-                message.encrypt(bob.get_public());
-            },
-            200
-        )
-    );
+    // attacks::signature_forgery::gen_signature_for_hash(hash, e);
 }

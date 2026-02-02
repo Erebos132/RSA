@@ -3,3 +3,4 @@
 pub mod chosen_cyphertext;
 pub mod factor;
 pub mod low_pub;
+pub mod signature_forgery;
