@@ -6,8 +6,6 @@ use std::env::args;
 use std::thread;
 use std::time;
 
-use crate::visualize::create_graph_stdev_threaded;
-
 pub mod attacks;
 pub mod gf;
 pub mod kg;
