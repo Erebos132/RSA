@@ -20,6 +20,6 @@ fn main() {
 
     println!(
         "{:?}",
-        padding::remove_oaep(512, padding::add_oaep(512, "Hello World"))
+        padding::remove_oaep(512, padding::add_oaep(512, "Testing123"))
     );
 }

@@ -81,9 +81,9 @@ pub fn get_prime_in_bitrange<R: RngCore>(rng: &mut R, bit_size: u64, rounds: usi
 }
 
 // Generate random number in bitrange
-pub fn gen_n_random_bits<R: RngCore>(rng: &mut R, byte_size: usize) -> Vec<u8> {
+pub fn gen_n_random_bits<R: RngCore>(rng: &mut R, bit_size: usize) -> Vec<u8> {
     let mut output_vec = vec![];
-    for _ in 0..byte_size {
+    for _ in 0..bit_size / 8 {
         output_vec.push(rng.gen_range(0..=255))
     }
     return output_vec;
