@@ -16,10 +16,12 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    let bob = kg::Keypair::new(256);
+    let bob = kg::Keypair::new(512);
 
     println!(
         "{:?}",
-        padding::remove_oaep(512, padding::add_oaep(512, "Testing123"))
+        mp::Msg::new("a")
+            .encrypt_oaep(3, bob.get_public(), 512)
+            .decrypt_oaep(&bob, 512)
     );
 }

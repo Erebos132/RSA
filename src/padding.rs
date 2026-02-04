@@ -43,9 +43,11 @@ pub fn remove_padding(message: &str, length: usize) -> String {
 }
 
 // Function for OAEP Implementation
-pub fn add_oaep(n_bitlength: usize, message: &str) -> (BigUint, BigUint) {
+// WORKS ONLY FOR BITLENGTH >= 512 bits!
+pub fn add_oaep(n_bitlength: usize, message: &str) -> BigUint {
     // Random Bits length
-    let k0 = 256;
+    let mut k0 = 256;
+
     // Generate random bits:
     let mut rng = rand::rngs::OsRng;
     let r = &rngp::gen_n_random_bits(&mut rng, k0)[..];
@@ -61,14 +63,37 @@ pub fn add_oaep(n_bitlength: usize, message: &str) -> (BigUint, BigUint) {
     let h_of_x = gf::hash_bytes_col(&xor1[..], k0);
     let xor2 = gf::xor(r, &h_of_x[..]);
 
-    return (
-        BigUint::from_bytes_be(&xor1[..]),
-        BigUint::from_bytes_be(&xor2[..]),
-    );
+    return BigUint::from_bytes_be(&oaep_encode(xor1, xor2, k0)[..]);
 }
 
-pub fn remove_oaep(n_bitlength: usize, (x, y): (BigUint, BigUint)) -> String {
-    let (x, y) = (x.to_bytes_be(), y.to_bytes_be());
+fn oaep_encode(x: Vec<u8>, y: Vec<u8>, n: usize) -> Vec<u8> {
+    let mut em = Vec::with_capacity(n);
+
+    em.push(0xff);
+    em.extend_from_slice(&x[..]);
+    em.extend_from_slice(&y[..]);
+
+    em
+}
+
+fn oaep_decode(em: &[u8], k0: usize) -> (Vec<u8>, Vec<u8>) {
+    // EM = 0x00 || X || Y
+
+    if em[0] != 0xff {
+        panic!("Invalid OAEP encoding");
+    }
+
+    let x_len = em.len() - 1 - k0;
+
+    let x = em[1..1 + x_len].to_vec();
+    let y = em[1 + x_len..].to_vec();
+
+    (x, y)
+}
+
+pub fn remove_oaep(n_bitlength: usize, em: BigUint) -> String {
+    let (x, y) = oaep_decode(&em.to_bytes_be()[..], 256);
+    //
     // Random Bits length
     let k0 = 256;
 

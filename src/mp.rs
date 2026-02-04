@@ -56,6 +56,14 @@ impl EncryptedMsg {
         return output_string;
     }
 
+    pub fn decrypt_oaep(&self, key_identity: &kg::Keypair, n_bitlength: usize) -> String {
+        let mut output_string = String::new();
+        for block in &self.blocks {
+            output_string += &(padding::remove_oaep(n_bitlength, key_identity.decrypt_num(&block)));
+        }
+        return output_string;
+    }
+
     // TODO: This does not work yet, by no means, not even close...
     // pub fn verify(&self, public_sender: (BigUint, BigUint), orig_msg: Msg) -> bool {
     //     kg::Keypair::verify_num(original_messg_num, signature, public_key_sender)
@@ -156,8 +164,19 @@ impl Msg {
     }
 
     // TODO: This function is not done yet
-    pub fn encrypt_oaep(&self, blocksize: usize, public_keys: &(BigUint, BigUint)) -> EncryptedMsg {
+    pub fn encrypt_oaep(
+        &self,
+        blocksize: usize,
+        public_keys: &(BigUint, BigUint),
+        public_n_bitsize: usize,
+    ) -> EncryptedMsg {
         let mut output_vec = vec![];
+        for block in self.slice(blocksize) {
+            output_vec.push(kg::Keypair::encrypt_num_for(
+                &padding::add_oaep(public_n_bitsize, &block),
+                public_keys,
+            ))
+        }
         return EncryptedMsg::new(output_vec);
     }
 
