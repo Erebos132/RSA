@@ -136,3 +136,7 @@ pub fn nth_root(n: &BigUint, k: u32) -> BigUint {
     }
     low
 }
+
+pub fn xor(a: &[u8], b: &[u8]) -> Vec<u8> {
+    a.iter().zip(b.iter()).map(|(&a, &b)| a ^ b).collect()
+}

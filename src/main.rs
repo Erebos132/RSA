@@ -18,5 +18,8 @@ fn main() {
     let arguments = args().collect::<Vec<String>>();
     let bob = kg::Keypair::new(256);
 
-    println!("{}", padding::add_oaep(512, "Hello World"));
+    println!(
+        "{:?}",
+        padding::remove_oaep(512, padding::add_oaep(512, "Hello World"))
+    );
 }

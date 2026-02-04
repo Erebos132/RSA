@@ -155,6 +155,12 @@ impl Msg {
         return EncryptedMsg::new(output_vect);
     }
 
+    // TODO: This function is not done yet
+    pub fn encrypt_oaep(&self, blocksize: usize, public_keys: &(BigUint, BigUint)) -> EncryptedMsg {
+        let mut output_vec = vec![];
+        return EncryptedMsg::new(output_vec);
+    }
+
     pub fn sign(&self, keyring: &kg::Keypair) -> EncryptedMsg {
         let mut output_vect = vec![];
 

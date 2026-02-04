@@ -9,7 +9,11 @@ const CHARS: [char; 64] = [
 ];
 
 use kdam::format;
+use num_bigint::BigUint;
 use rand::{self, Rng, seq::IteratorRandom};
+
+use crate::gf;
+use crate::rngp;
 
 // Generating a specific amount of random characters chosen from the possible characters
 pub fn random_padding(num: usize) -> String {
@@ -39,12 +43,41 @@ pub fn remove_padding(message: &str, length: usize) -> String {
 }
 
 // Function for OAEP Implementation
-pub fn add_oaep(n_bitlength: usize, message: &str) -> String {
+pub fn add_oaep(n_bitlength: usize, message: &str) -> (BigUint, BigUint) {
     // Random Bits length
     let k0 = 256;
-    let messg_bitlength = message.chars().count() * 8;
-    let msg = message.as_bytes();
-    let k1 = (n_bitlength - messg_bitlength - k0);
+    // Generate random bits:
+    let mut rng = rand::rngs::OsRng;
+    let r = &rngp::gen_n_random_bits(&mut rng, k0)[..];
 
-    return format!("{}", k1);
+    let g_of_r = gf::hash_bytes_col(r, n_bitlength - k0);
+
+    let messg_bitlength = message.chars().count() * 8;
+    let k1 = (n_bitlength - messg_bitlength - k0);
+    let msg = message.as_bytes();
+
+    let xor1 = gf::xor(msg, &g_of_r[..]);
+
+    let h_of_x = gf::hash_bytes_col(&xor1[..], k0);
+    let xor2 = gf::xor(r, &h_of_x[..]);
+
+    return (
+        BigUint::from_bytes_be(&xor1[..]),
+        BigUint::from_bytes_be(&xor2[..]),
+    );
+}
+
+pub fn remove_oaep(n_bitlength: usize, (x, y): (BigUint, BigUint)) -> String {
+    let (x, y) = (x.to_bytes_be(), y.to_bytes_be());
+    // Random Bits length
+    let k0 = 256;
+
+    let h_of_x = gf::hash_bytes_col(&x, k0);
+    let r = gf::xor(&y, &h_of_x[..]);
+
+    let g_of_r = gf::hash_bytes_col(&r, n_bitlength - k0);
+
+    let msg = gf::xor(&x, &g_of_r);
+
+    return String::from_utf8(msg).unwrap();
 }
