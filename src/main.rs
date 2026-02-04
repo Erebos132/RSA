@@ -16,12 +16,7 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    let (p, q) = kg::Keypair::gen_pq(16);
-    let bob = kg::Keypair::from_pqe(p, q, gf::big(3));
+    let bob = kg::Keypair::new(256);
 
-    let message = mp::Msg::new("Testing, Hello World");
-    let signed_message = message.sign(&bob.unwrap());
-    println!("{:?}", signed_message.display());
-
-    // attacks::signature_forgery::gen_signature_for_hash(hash, e);
+    println!("{}", padding::add_oaep(512, "Hello World"));
 }

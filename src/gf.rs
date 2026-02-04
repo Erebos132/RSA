@@ -93,6 +93,18 @@ pub fn hash_bytes(bytes: &[u8]) -> BigUint {
     BigUint::from_bytes_be(&hasher.finalize())
 }
 
+// Custom Output-bitlength
+pub fn hash_bytes_col(bytes: &[u8], output_bitlength: usize) -> Vec<u8> {
+    let mut output_bytes = vec![];
+    while output_bytes.len() * 8 < output_bitlength {
+        let mut hasher = Sha256::new();
+        hasher.update(&output_bytes);
+        hasher.update(bytes);
+        output_bytes.append(&mut hasher.finalize().to_vec());
+    }
+    return output_bytes[0..output_bitlength / 8].to_vec();
+}
+
 // Parser to parse a string of any length into a BigUint --> Works by taking byte-list of string
 // and converting it to an integer -> UTF-8
 pub fn str_to_int(msg: &str) -> BigUint {
