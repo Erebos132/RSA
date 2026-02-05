@@ -20,8 +20,21 @@ fn main() {
 
     println!(
         "{:?}",
-        mp::Msg::new("a")
+        mp::Msg::new("abc das ist ein Test!")
             .encrypt_oaep(3, bob.get_public(), 512)
             .decrypt_oaep(&bob, 512)
+    );
+
+    println!(
+        "{:?}",
+        mp::Msg::new("abc das ist ein Test!")
+            .encrypt_blocks(3, bob.get_public())
+            .display() // .decrypt_oaep(&bob, 512)
+    );
+    println!(
+        "{:?}",
+        mp::Msg::new("abc das ist ein Test!")
+            .encrypt_blocks(3, bob.get_public())
+            .display() // .decrypt_oaep(&bob, 512)
     );
 }

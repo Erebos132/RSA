@@ -63,13 +63,13 @@ pub fn add_oaep(n_bitlength: usize, message: &str) -> BigUint {
     let h_of_x = gf::hash_bytes_col(&xor1[..], k0);
     let xor2 = gf::xor(r, &h_of_x[..]);
 
-    return BigUint::from_bytes_be(&oaep_encode(xor1, xor2, k0)[..]);
+    return BigUint::from_bytes_be(&oaep_encode(xor1, xor2, k0));
 }
 
 fn oaep_encode(x: Vec<u8>, y: Vec<u8>, n: usize) -> Vec<u8> {
-    let mut em = Vec::with_capacity(n);
+    let mut em = Vec::with_capacity(n + 1);
 
-    em.push(0xff);
+    em.push(0x01);
     em.extend_from_slice(&x[..]);
     em.extend_from_slice(&y[..]);
 
@@ -79,11 +79,11 @@ fn oaep_encode(x: Vec<u8>, y: Vec<u8>, n: usize) -> Vec<u8> {
 fn oaep_decode(em: &[u8], k0: usize) -> (Vec<u8>, Vec<u8>) {
     // EM = 0x00 || X || Y
 
-    if em[0] != 0xff {
+    if em[0] != 0x01 {
         panic!("Invalid OAEP encoding");
     }
 
-    let x_len = em.len() - 1 - k0;
+    let x_len = em.len() - 1 - k0 / 8;
 
     let x = em[1..1 + x_len].to_vec();
     let y = em[1 + x_len..].to_vec();
@@ -91,9 +91,9 @@ fn oaep_decode(em: &[u8], k0: usize) -> (Vec<u8>, Vec<u8>) {
     (x, y)
 }
 
-pub fn remove_oaep(n_bitlength: usize, em: BigUint) -> String {
-    let (x, y) = oaep_decode(&em.to_bytes_be()[..], 256);
-    //
+pub fn remove_oaep(n_bitlength: usize, em: &BigUint) -> String {
+    let (x, y) = oaep_decode(&em.to_bytes_be(), 256);
+
     // Random Bits length
     let k0 = 256;
 

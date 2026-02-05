@@ -59,7 +59,8 @@ impl EncryptedMsg {
     pub fn decrypt_oaep(&self, key_identity: &kg::Keypair, n_bitlength: usize) -> String {
         let mut output_string = String::new();
         for block in &self.blocks {
-            output_string += &(padding::remove_oaep(n_bitlength, key_identity.decrypt_num(&block)));
+            output_string +=
+                &(padding::remove_oaep(n_bitlength, &key_identity.decrypt_num(&block)));
         }
         return output_string;
     }
