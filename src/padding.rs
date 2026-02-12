@@ -26,6 +26,16 @@ pub fn random_padding(num: usize) -> String {
     return output;
 }
 
+pub fn generate_random(num: usize, charset: &Vec<char>) -> String {
+    let mut output = String::new();
+    let mut rng = rand::rngs::OsRng;
+
+    for _ in 0..num {
+        output.push(*charset.iter().choose(&mut rng).unwrap());
+    }
+    return output;
+}
+
 // Return a new message containing the original message surrounded by the padding with length
 // "length"
 pub fn add_random_padding(message: &str, length: usize) -> String {

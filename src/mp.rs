@@ -3,6 +3,7 @@
 use crate::gf;
 use crate::kg;
 use crate::padding;
+use kdam::format;
 use num_bigint::BigUint;
 
 pub struct EncryptedMsg {
@@ -188,5 +189,9 @@ impl Msg {
             output_vect.push(keyring.sign_num(&gf::big(char as u128)));
         }
         return EncryptedMsg::new(output_vect);
+    }
+
+    pub fn display(&self) -> String {
+        return String::from(&self.content);
     }
 }

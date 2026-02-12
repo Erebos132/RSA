@@ -16,19 +16,30 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    let bob = kg::Keypair::new(64);
+    let bob = kg::Keypair::new(512);
+    let message = "tes";
+    let msg = mp::Msg::new(message).encrypt_blocks(message.len(), bob.get_public());
 
-    println!("{}", bob.get_public().0);
-    println!("{}", gf::base64_encode(&bob.get_public().0));
-    println!(
-        "{}",
-        gf::base64_decode(gf::base64_encode(&bob.get_public().0)).unwrap()
-    );
-
-    // println!(
-    //     "{:?}",
-    //     mp::Msg::new("abc das ist ein Test!")
-    //         .encrypt_oaep(5, bob.get_public(), 512)
-    //         .decrypt_oaep(&bob, 512)
-    // );
+    let now = time::Instant::now();
+    let charset: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
+    let mut round = 0;
+    for _ in 0..100 {
+        loop {
+            round += 1;
+            if round % 300000 == 0 {
+                println!("round {round} completed after {:?}", now.elapsed());
+            }
+            let testing_msg = mp::Msg::new(&padding::generate_random(message.len(), &charset));
+            if (testing_msg
+                .encrypt_blocks(message.len(), bob.get_public())
+                .display()
+                == msg.display())
+            {
+                println!("found msg: {}", testing_msg.display());
+                println!("took {:?}", now.elapsed());
+                break;
+            }
+        }
+    }
+    println!("{:?}", now.elapsed() / 100);
 }
