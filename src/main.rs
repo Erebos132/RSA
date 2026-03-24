@@ -8,6 +8,8 @@ use std::collections::HashMap;
 use std::env::args;
 use std::thread;
 
+use crate::attacks::{chosen_plaintext, factor};
+
 pub mod attacks;
 pub mod gf;
 pub mod kg;
@@ -19,12 +21,6 @@ pub mod visualize;
 fn main() {
     let arguments = args().collect::<Vec<String>>();
     let theme = ColorfulTheme::default();
-
-    // let advanced = dialoguer::Confirm::with_theme(&theme)
-    //     .with_prompt("Are you familiar with the structure of this codebase?")
-    //     .default(false)
-    //     .interact()
-    //     .unwrap();
 
     let mut keyrings: HashMap<String, kg::Keypair> = HashMap::new();
 
@@ -194,7 +190,75 @@ fn main() {
         }
 
         // Attacks
-        if basic_categories == 3 {}
+        if basic_categories == 3 {
+            match dialoguer::Select::with_theme(&theme)
+                .with_prompt("Which Attack do you want to execute")
+                .items(&[
+                    "Modulus Factorization",
+                    "Chosen Plaintext",
+                    "Chosen Cyphertext",
+                ])
+                .default(0)
+                .interact()
+                .unwrap()
+            {
+                0 => {
+                    // Modulus Factorization
+                    let keyring_names = keyrings.keys().cloned().collect::<Vec<String>>();
+                    let index = dialoguer::Select::with_theme(&theme)
+                        .with_prompt("Select Identity to Crack")
+                        .items(&keyring_names)
+                        .default(0)
+                        .interact()
+                        .unwrap();
+
+                    let selected_name = &keyring_names[index];
+
+                    let iden: &kg::Keypair = keyrings.get(selected_name.as_str()).unwrap();
+                    let factors = factor::factor(&iden.get_public().0);
+
+                    println!("Found Modulus Factors: {} and {}", factors[0], factors[1]);
+                }
+                1 => {
+                    // Chosen Plaintext
+                    let msg_b64: String = dialoguer::Input::with_theme(&theme)
+                        .with_prompt("Paste Encrypted Message")
+                        .interact_text()
+                        .unwrap();
+                    let msg: mp::EncryptedMsg = mp::EncryptedMsg::from_base64(&msg_b64);
+
+                    let keyring_names = keyrings.keys().cloned().collect::<Vec<String>>();
+                    let index = dialoguer::Select::with_theme(&theme)
+                        .with_prompt("Who was this Message meant to be sent to?")
+                        .items(&keyring_names)
+                        .default(0)
+                        .interact()
+                        .unwrap();
+
+                    let selected_name = &keyring_names[index];
+
+                    let iden: &kg::Keypair = keyrings.get(selected_name.as_str()).unwrap();
+
+                    let blocksize = dialoguer::Select::with_theme(&theme)
+                        .with_prompt("Which Blocksize was used?")
+                        .items((1..=10).map(|intbef| intbef.to_string()))
+                        .default(4 - 1)
+                        .interact()
+                        .unwrap()
+                        + 1;
+
+                    println!(
+                        "Found Message: {}",
+                        chosen_plaintext::unknown_message_length(
+                            &msg,
+                            iden.get_public(),
+                            blocksize
+                        )
+                    );
+                }
+                _ => (),
+            };
+        }
 
         // Exit
         if basic_categories == 4 {

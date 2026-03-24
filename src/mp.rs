@@ -199,7 +199,6 @@ impl Msg {
         return EncryptedMsg::new(output_vect);
     }
 
-    // TODO: This function is not done yet
     pub fn encrypt_oaep(
         &self,
         blocksize: usize,
