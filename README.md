@@ -1,27 +1,9 @@
-# rsa-facharbeit
+# Eigene Implementation von RSA
 
-This Project is my (second) own Implementation of the RSA Encryption and Signature Algorithm. This time, I've imlemented it in rust, in the hopes of creating a faster and more efficient environment. 
-Unfortunately, I have apparently failed to do so. At least for now. When performance might become multi-threaded, it might become a different deal. 
+## Beschreibung
+In diesem Repository habe ich eine eigene Implementation des RSA-Algorithmus in Rust geschrieben. 
+Hierfür wurden nur die nötigsten Packages genutzt und so viel, wie nur möglich selbst per Hand geschrieben. Vereinzelte Funktionen wurden mithilfe einer KI (ChatGPT) geschrieben, diese wurden entsprechend gekennzeichnet. 
+Prinzipiell ist dieses Repository bisher nur eine Ansammlung von verschiedenen Funktionen, welche man selbst noch per Hand zusammenfügen muss und anschließend laufen lassen kann. Sollte ich die Zeit dazu haben, werde ich alle Funktionen in ein einziges Binary Package kompilieren mit einer einfachen TUI. 
 
-
-TODO-List: 
-  - Graphs of: 
-      #- key generation: bitlength vs time
-      #- factorization: bitlength vs time
-      - Encryption: bitlength vs time
-        -> Messagesize; Features: Blocking, Padding
-      - Decryption: bitlength vs time
-        -> Same as Encryption
-      - What operation takes how much time for key generation (circle diagram)
-  - #Build Blocking of Messages
-  - #Adding Padding
-  - #Hashing Function
-  - Multi-threaded generation of keys, encryption, and decryption
-  - Improve Performance of Key Generation
-  - Attacks: 
-    - #technically low public exponent e (test and document)
-        -> If m^e < n --> There is no modulous being taken, therefore, no encryption
-    - #chosen cyphertext attack -> User error
-    - Try to recover secrets by knowing encryption and cleartext-message (apparently not possible)
-    - maybe coppersmith attack? -> Seems complex...
-  - #Add proper OAEP
+## Installation
+Da dieses Projekt eine reine Rust-Codebase hat kann der gesamte Code mithilfe von Rust / Cargo kompiliert werden. Hierzu muss lediglich `git clone https://github.com/Erebos132/RSA` in einer Command Prompt, in welcher git installiert ist, ausgeführt werden. Anschließend kann man mit dem Cargo Package: `cargo run` ausführen, wodurch das Projekt automatisch kompiliert und ausgeführt wird. Zurzeit muss hierfür noch eine Ansammlung von Funktionen in der `main.rs` Datei existieren. Dies wird frühstmöglich geändert.
