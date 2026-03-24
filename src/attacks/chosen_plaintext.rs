@@ -47,8 +47,8 @@ pub fn unknown_message_length(
     blocksize: usize,
 ) -> String {
     let mut final_message = String::new();
-    let mut test_message = String::from(" ");
     for block in msg.display() {
+        let mut test_message = String::from(" ");
         while block
             != &mp::Msg::new(&test_message)
                 .encrypt_blocks(blocksize, recv_pub)
