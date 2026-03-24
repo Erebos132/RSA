@@ -110,7 +110,61 @@ fn main() {
         }
 
         // Decryption
-        if basic_categories == 1 {}
+        if basic_categories == 1 {
+            let msg_b64: String = dialoguer::Input::with_theme(&theme)
+                .with_prompt("Paste Encrypted Message")
+                .interact_text()
+                .unwrap();
+            let msg: mp::EncryptedMsg = mp::EncryptedMsg::from_base64(&msg_b64);
+
+            let keyring_names = keyrings.keys().cloned().collect::<Vec<String>>();
+            let index = dialoguer::Select::with_theme(&theme)
+                .with_prompt("Who are you? ")
+                .items(&keyring_names)
+                .default(0)
+                .interact()
+                .unwrap();
+
+            let selected_name = &keyring_names[index];
+
+            let iden: &kg::Keypair = keyrings.get(selected_name.as_str()).unwrap();
+
+            let padding = dialoguer::Select::with_theme(&theme)
+                .with_prompt("How was the Message Padded?")
+                .items(&["No Padding", "OAEP", "n Random Characters"])
+                .default(0)
+                .interact()
+                .unwrap();
+
+            let message = match padding {
+                0 => msg.decrypt_blocks(&iden),
+                1 => {
+                    let keysize = selected_name
+                        .split(":")
+                        .collect::<Vec<&str>>()
+                        .pop()
+                        .unwrap()
+                        .parse::<usize>()
+                        .unwrap();
+                    msg.decrypt_oaep(&iden, keysize)
+                }
+                2 => {
+                    let padding_size = dialoguer::Select::with_theme(&theme)
+                        .with_prompt("How many Characters of Padding were used? (for each block)")
+                        .items((1..=10).map(|intbef| intbef.to_string()))
+                        .default(2 - 1)
+                        .interact()
+                        .unwrap();
+                    msg.decrypt_blocks_padding(iden, padding_size)
+                }
+
+                _ => String::new(),
+            };
+
+            println!("======== Decrypted Message ==========");
+            println!("{}", message);
+            println!("=====================================");
+        }
 
         // Keygeneration
         if basic_categories == 2 {
