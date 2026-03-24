@@ -6,8 +6,23 @@ use crate::padding;
 use kdam::format;
 use num_bigint::BigUint;
 
+use base64::{Engine as _, engine::general_purpose};
+
 pub struct EncryptedMsg {
     blocks: Vec<BigUint>,
+}
+
+// Chatgpt
+fn biguint_to_base64(n: &BigUint) -> String {
+    let bytes = n.to_bytes_be();
+    general_purpose::STANDARD.encode(bytes)
+}
+
+// Chatgpt
+fn base64_to_biguint(s: &str) -> BigUint {
+    let bytes = general_purpose::STANDARD.decode(s).expect("Invalid base64");
+
+    BigUint::from_bytes_be(&bytes)
 }
 
 // Format for storing encrypted nums as blocks
@@ -74,6 +89,25 @@ impl EncryptedMsg {
     // Get the inner blocks which are encrypted
     pub fn display(&self) -> &Vec<BigUint> {
         return &self.blocks;
+    }
+
+    pub fn from_base64(input: &str) -> EncryptedMsg {
+        let mut base_blocks = input.split(",").collect::<Vec<&str>>();
+        let mut output_vec = vec![];
+        for block in base_blocks {
+            output_vec.push(base64_to_biguint(block));
+        }
+        EncryptedMsg::new(output_vec)
+    }
+
+    pub fn base64(&self) -> String {
+        let mut output_string = String::new();
+        for block in &self.blocks {
+            output_string += &biguint_to_base64(block);
+            output_string += ",";
+        }
+        output_string.pop();
+        output_string
     }
 }
 

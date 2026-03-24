@@ -1,10 +1,12 @@
 #![allow(unused)]
 
+use dialoguer;
+use dialoguer::theme::ColorfulTheme;
 use num_bigint::{BigUint, RandBigInt, ToBigUint};
 use rand::rngs::OsRng;
+use std::collections::HashMap;
 use std::env::args;
 use std::thread;
-use std::time;
 
 pub mod attacks;
 pub mod gf;
@@ -16,30 +18,133 @@ pub mod visualize;
 
 fn main() {
     let arguments = args().collect::<Vec<String>>();
-    let bob = kg::Keypair::new(512);
-    let message = "tes";
-    let msg = mp::Msg::new(message).encrypt_blocks(message.len(), bob.get_public());
+    let theme = ColorfulTheme::default();
 
-    let now = time::Instant::now();
-    let charset: Vec<char> = "abcdefghijklmnopqrstuvwxyz".chars().collect();
-    let mut round = 0;
-    for _ in 0..100 {
-        loop {
-            round += 1;
-            if round % 300000 == 0 {
-                println!("round {round} completed after {:?}", now.elapsed());
-            }
-            let testing_msg = mp::Msg::new(&padding::generate_random(message.len(), &charset));
-            if (testing_msg
-                .encrypt_blocks(message.len(), bob.get_public())
-                .display()
-                == msg.display())
+    // let advanced = dialoguer::Confirm::with_theme(&theme)
+    //     .with_prompt("Are you familiar with the structure of this codebase?")
+    //     .default(false)
+    //     .interact()
+    //     .unwrap();
+
+    let mut keyrings: HashMap<String, kg::Keypair> = HashMap::new();
+
+    loop {
+        let basic_categories = dialoguer::Select::with_theme(&theme)
+            .with_prompt("What do you want to do?")
+            .items(&[
+                "Encrypt Message",
+                "Decrypt Message",
+                "Generate Keypair",
+                "Attack",
+                "Quit",
+            ])
+            .default(2)
+            .interact()
+            .unwrap();
+
+        // Encryption
+        if basic_categories == 0 {
+            let msg: String = dialoguer::Input::with_theme(&theme)
+                .with_prompt("What Message should be Encrypted?")
+                .interact_text()
+                .unwrap();
+            let keyring_names = keyrings.keys().cloned().collect::<Vec<String>>();
+            let index = dialoguer::Select::with_theme(&theme)
+                .with_prompt("Select Recipient")
+                .items(&keyring_names)
+                .default(0)
+                .interact()
+                .unwrap();
+
+            let selected_name = &keyring_names[index];
+
+            let recv: &kg::Keypair = keyrings.get(selected_name.as_str()).unwrap();
+
+            let padding = dialoguer::Select::with_theme(&theme)
+                .with_prompt("Should the Message be Padded?")
+                .items(&["No Padding", "OAEP", "n Random Characters"])
+                .default(0)
+                .interact()
+                .unwrap();
+
+            let blocksize = dialoguer::Select::with_theme(&theme)
+                .with_prompt("Choose Blocksize:")
+                .items((1..=10).map(|intbef| intbef.to_string()))
+                .default(4 - 1)
+                .interact()
+                .unwrap()
+                + 1;
+
+            let message = match padding {
+                0 => mp::Msg::new(&msg).encrypt_blocks(blocksize, recv.get_public()),
+                1 => {
+                    let keysize = selected_name
+                        .split(":")
+                        .collect::<Vec<&str>>()
+                        .pop()
+                        .unwrap()
+                        .parse::<usize>()
+                        .unwrap();
+                    mp::Msg::new(&msg).encrypt_oaep(blocksize, recv.get_public(), keysize)
+                }
+                2 => {
+                    let padding_size = dialoguer::Select::with_theme(&theme)
+                        .with_prompt("Choose Size of Padding (for each block):")
+                        .items((1..=10).map(|intbef| intbef.to_string()))
+                        .default(2 - 1)
+                        .interact()
+                        .unwrap();
+                    mp::Msg::new(&msg).encrypt_blocks_padding(
+                        blocksize,
+                        padding_size,
+                        recv.get_public(),
+                    )
+                }
+
+                _ => mp::EncryptedMsg::new(vec![]),
+            };
+
+            println!("======== Encrypted Message ==========");
+            println!("{}", message.base64());
+            println!("=====================================");
+        }
+
+        // Decryption
+        if basic_categories == 1 {}
+
+        // Keygeneration
+        if basic_categories == 2 {
+            let keypair_name: String = dialoguer::Input::with_theme(&theme)
+                .with_prompt("Name:")
+                .interact_text()
+                .unwrap();
+            let keysizes = vec![12, 16, 20, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+            let factor_size = dialoguer::Select::with_theme(&theme)
+                .with_prompt("Select Size of Prime Numbers (Factors for Modulus)")
+                .items(&keysizes)
+                .default(6)
+                .interact()
+                .unwrap();
+
+            if dialoguer::Confirm::with_theme(&theme)
+                .default(true)
+                .with_prompt("Are you sure?")
+                .interact()
+                .unwrap()
             {
-                println!("found msg: {}", testing_msg.display());
-                println!("took {:?}", now.elapsed());
-                break;
+                keyrings.insert(
+                    format!("{}:{}", keypair_name, keysizes[factor_size]),
+                    kg::Keypair::new(keysizes[factor_size]),
+                );
             }
         }
+
+        // Attacks
+        if basic_categories == 3 {}
+
+        // Exit
+        if basic_categories == 4 {
+            std::process::exit(0)
+        }
     }
-    println!("{:?}", now.elapsed() / 100);
 }
