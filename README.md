@@ -12,4 +12,4 @@ Update:
 Inzwischen gibt es eine einfache TUI für die rudimentärsten Funktionen. Hierzu muss lediglich das Programm kompiliert und ausgeführt werden.
 
 Hier einige Demos der implementierten Funktionen: 
-![Demo](./Videos/key-generation_%05d.webp)
+![Demo](./Videos/key-generation.webp)
