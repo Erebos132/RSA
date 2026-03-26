@@ -12,4 +12,15 @@ Update:
 Inzwischen gibt es eine einfache TUI für die rudimentärsten Funktionen. Hierzu muss lediglich das Programm kompiliert und ausgeführt werden.
 
 Hier einige Demos der implementierten Funktionen: 
-![Demo](./Videos/key-generation.webp)
+
+Schlüssel Generation:
+![Demo Schlüsselgeneration](./Videos/key-generation.webp)
+
+Verschlüsselung:
+![Demo Verschlüsselung](./Videos/encryption.webp)
+
+Faktorisierungsangriff:
+![Demo Faktorisierung](./Videos/attack_fac.webp)
+
+"Chosen Plaintext Attack":
+![Demo Plaintext Attack](./Videos/attack_plain.webp)
