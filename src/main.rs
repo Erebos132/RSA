@@ -58,7 +58,7 @@ fn main() {
 
             let padding = dialoguer::Select::with_theme(&theme)
                 .with_prompt("Should the Message be Padded?")
-                .items(&["No Padding", "OAEP", "n Random Characters"])
+                .items(&["No Padding", "OAEP", "Random Characters"])
                 .default(0)
                 .interact()
                 .unwrap();
@@ -127,7 +127,7 @@ fn main() {
 
             let padding = dialoguer::Select::with_theme(&theme)
                 .with_prompt("How was the Message Padded?")
-                .items(&["No Padding", "OAEP", "n Random Characters"])
+                .items(&["No Padding", "OAEP", "Random Characters"])
                 .default(0)
                 .interact()
                 .unwrap();

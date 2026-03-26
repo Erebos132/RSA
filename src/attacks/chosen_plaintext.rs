@@ -2,6 +2,7 @@ use crate::kg::Keypair;
 use crate::mp;
 use crate::mp::EncryptedMsg;
 use num_bigint::BigUint;
+use std::time;
 
 const ORDER: [char; 92] = [
     ' ', '!', '"', '#', '$', '%', '&', '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3',
@@ -46,6 +47,7 @@ pub fn unknown_message_length(
     recv_pub: &(BigUint, BigUint),
     blocksize: usize,
 ) -> String {
+    let now = std::time::Instant::now();
     let mut final_message = String::new();
     for block in msg.display() {
         let mut test_message = String::from(" ");
@@ -59,5 +61,6 @@ pub fn unknown_message_length(
         println!("Found Block: {}", test_message);
         final_message += &test_message;
     }
+    println!("Found Original Message after {:?}", now.elapsed());
     final_message
 }
